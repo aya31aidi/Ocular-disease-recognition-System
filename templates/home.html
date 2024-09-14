@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocular Disease Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home_styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="https://seeklogo.com/images/E/eyes-doctor-logo-2EE60CDECA-seeklogo.com.png" alt="Logo" id="navbar-logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('services') }}">Services</a></li>
+                <li><a href="{{ url_for('index') }}">Recognition</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="header-buttons">
+    <a href="{{ url_for('signin') }}" class="btn action1">Sign in</a>
+    <a href="{{ url_for('signup') }}" class="btn action2">Sign up</a>
+</div>
+    </header>
+
+    <main>
+        <h1>Advanced Ocular Disease Recognition</h1><br><br>
+        <p>Cutting-edge technology for accurate diagnosis and treatment of ocular diseases</p><br><br>
+        <div class="cta-buttons">
+            <a href="{{ url_for('index') }}" class="btn get-started">Get Started</a>
+            <a href="#" class="btn learn-more">Learn More</a>
+        </div>
+    </main>
+    </br> </br> <br>
+<section class="features">
+    <div class="container">
+        <div class="features-item">
+            <div class="features-image">
+                <img src="https://img.freepik.com/premium-photo/female-doctor-using-machine-check-old-man-eye-people-with-medical-concept_42892-153.jpg" alt="Ocular Disease Recognition" />
+            </div>
+            <div class="features-text">
+                <h2>Advanced AI Algorithms</h2>
+                <p>Our system leverages state-of-the-art AI algorithms to precisely diagnose a wide range of ocular diseases, enhancing early detection and treatment.</p>
+            </div>
+        </div>
+        
+        <div class="features-item">
+            <div class="features-image">
+                <img src="https://s3-us-west-2.amazonaws.com/utsw-patientcare-web-production/original_images/Diabetic_eye_disease_600.jpg" alt="Data Analysis" />
+            </div>
+            <div class="features-text">
+                <h2>Comprehensive Data Analysis</h2>
+                <p>We offer in-depth data analysis to support the accurate identification and monitoring of ocular health conditions, ensuring personalized care.</p>
+            </div>
+        </div>
+
+        <div class="features-item">
+            <div class="features-image">
+                <img src="https://sa1s3optim.patientpop.com/assets/docs/65299.jpg" alt="Accurate Results" />
+            </div>
+            <div class="features-text">
+                <h2>Rapid and Accurate Results</h2>
+                <p>Experience fast and reliable results in ocular disease detection, enabling timely and effective medical interventions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .features {
+        padding: 60px 0;
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
+    }
+
+    .features-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .features-image img {
+        width: 100%;
+        max-width: 250px;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 20px; /* Adjusted space below images */
+    }
+
+    .features-text h2 {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px; /* Adjusted space below the titles */
+        text-align: center;
+    }
+
+    .features-text p {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 20px; /* Adjusted space below the paragraphs */
+    }
+    .features-text {
+    text-align: left; /* Aligns text to the left */
+    padding-left: 15px; /* Adds padding to bring the text closer to the left edge */
+    text-align: center;
+    text-align: justify;
+    padding-right: 15px;
+}
+
+
+    @media (max-width: 768px) {
+        .container {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+</style>
+
+</body>
+</html>

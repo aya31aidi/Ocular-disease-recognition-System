@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='services_styles.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+   
+        <header>
+            <div class="logo">
+                <img src="https://seeklogo.com/images/E/eyes-doctor-logo-2EE60CDECA-seeklogo.com.png" alt="Logo" id="navbar-logo">
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('services') }}">Services</a></li>
+                    <li><a href="{{ url_for('index') }}">Recognition</a></li>
+                    <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="header-buttons">
+                <a href="{{ url_for('signin') }}" class="btn action1">Sign in</a>
+                <a href="{{ url_for('signup') }}" class="btn action2">Sign up</a>
+            </div>
+        </header>
+    <!-- Services Header -->
+    <section class="services-header">
+        <h1>Our Services</h1>
+        <p class="justified-text">We offer a wide range of services designed to support the diagnosis and treatment of ocular diseases. Our services leverage cutting-edge technology and expertise in the field of artificial intelligence to ensure accurate and timely predictions.</p>
+    </section>
+
+    <!-- Services Cards -->
+    <div class="services-container">
+        <!-- Service 1 -->
+        <div class="service-card">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWOtm0aeMQrJdzWL9Zu9hI7uRFPZ8oFf8pNA&s" alt="Service 1">
+            <h3>AI-Powered Diagnosis</h3>
+            <p class="justified-text">Our state-of-the-art AI models analyze medical images of the eye to detect and diagnose a variety of ocular diseases with high accuracy and reliability.</p>
+        </div>
+
+        <!-- Service 2 -->
+        <div class="service-card">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWp-x46L1KUgqGHYdYtTya9ehWpGT3acIJ-Q&s" alt="Service 2">
+            <h3>Predictive Analytics</h3>
+            <p class="justified-text">Using historical and real-time data, we provide predictive insights into disease progression, enabling early detection and personalized treatment plans.</p>
+        </div>
+
+        <!-- Service 3 -->
+        <div class="service-card">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAbHX2HnqeUKuxvzPi6plNdo33wibKCo_PZMBVkauHyY3Igma5unyccqcOvw79RFY5JPE&usqp=CAU" alt="Service 3">
+            <h3>Telemedicine Integration</h3>
+            <p class="justified-text">Our platform integrates seamlessly with telemedicine services, allowing patients to receive expert consultations from the comfort of their homes.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 Ocular Disease Recognition. All rights reserved.</p>
+    </footer>
+</body>
+</html>

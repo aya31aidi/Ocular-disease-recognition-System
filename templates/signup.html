@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Ocular Disease Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home_styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="https://seeklogo.com/images/E/eyes-doctor-logo-2EE60CDECA-seeklogo.com.png" alt="Logo" id="navbar-logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('services') }}">Services</a></li>
+                <li><a href="{{ url_for('index') }}">Recognition</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="header-buttons">
+            <a href="{{ url_for('signin') }}" class="btn action1">Sign in</a>
+            <a href="{{ url_for('signup') }}" class="btn action2">Sign up</a>
+        </div>
+    </header>
+
+    <main>
+        <h1>Sign Up</h1>
+        <form action="/signup" method="POST" class="auth-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <button type="submit" class="btn action2">Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="{{ url_for('signin') }}">Sign in here</a>.</p>
+    </main>
+
+    <style>
+        main {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .auth-form label {
+            font-size: 18px;
+            color: #555;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .auth-form .btn {
+            width: 100%;
+            padding: 10px;
+        }
+    </style>
+</body>
+</html>

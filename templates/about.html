@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Ocular Disease Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home_styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="https://seeklogo.com/images/E/eyes-doctor-logo-2EE60CDECA-seeklogo.com.png" alt="Logo" id="navbar-logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('services') }}">Services</a></li>
+                <li><a href="{{ url_for('index') }}">Recognition</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="header-buttons">
+            <a href="{{ url_for('signin') }}" class="btn action1">Sign in</a>
+            <a href="{{ url_for('signup') }}" class="btn action2">Sign up</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="about-us">
+            <h1>About Our Project</h1>
+            <p>Our mission is to revolutionize ocular healthcare by providing advanced AI-driven tools for the early detection and diagnosis of ocular diseases. We believe that early intervention is key to preventing vision loss and improving patient outcomes.</p>
+        </section>
+
+        <section class="our-mission">
+            <div class="container">
+                <div class="mission-item">
+                    <div class="mission-image">
+                        <img src="https://plus.unsplash.com/premium_photo-1661281323861-8bf46349f9cf?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZXllJTIwZG9jdG9yfGVufDB8fDB8fHww" alt="Our Mission">
+                    </div>
+                    <div class="mission-text">
+                        <h2>Our Mission</h2>
+                        <p>To empower healthcare providers with cutting-edge technology that enhances the accuracy and speed of ocular disease diagnosis, ultimately leading to better patient care and outcomes.</p>
+                    </div>
+                </div>
+                
+                <div class="mission-item">
+                    <div class="mission-image">
+                        <img src="https://images.unsplash.com/photo-1632054227742-67e0e23595b0?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGV5ZSUyMGRvY3RvcnxlbnwwfHwwfHx8MA%3D%3D" alt="Our Vision">
+                    </div>
+                    <div class="mission-text">
+                        <h2>Our Vision</h2>
+                        <p>We envision a world where AI is seamlessly integrated into every step of the ocular healthcare process, helping to prevent blindness and improve the quality of life for millions of people worldwide.</p>
+                    </div>
+                </div>
+
+                <div class="mission-item">
+                    <div class="mission-image">
+                        <img src="https://media.istockphoto.com/id/1492424309/photo/optician-performing-an-eye-exam-on-a-man-while-wearing-glasses.jpg?s=1024x1024&w=is&k=20&c=VSbR3-HeW6uuo6vHVuko_uGB9_SbKE5_pMoDBcGAaxA=" alt="Our Team">
+                    </div>
+                    <div class="mission-text">
+                        <h2>Our Team</h2>
+                        <p>Our dedicated team of AI experts, ophthalmologists, and healthcare professionals work tirelessly to develop innovative solutions that address the most pressing challenges in ocular health.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Ocular Disease Recognition. All rights reserved.</p>
+    </footer>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .logo img {
+            width: 50px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .header-buttons .btn {
+            padding: 10px 20px;
+            border: 2px solid #d9534f;
+            background-color: transparent;
+            color: #d9534f;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .header-buttons .btn.action1 {
+            background-color: #d9534f;
+            color: #fff;
+        }
+
+        .header-buttons .btn:hover {
+            background-color: #d9534f;
+            color: #fff;
+        }
+
+        .about-us {
+            text-align: center;
+            margin-top: 50px;
+            padding: 40px;
+            background-color: #f8f9fa;
+        }
+
+        .about-us h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .about-us p {
+            font-size: 1.2em;
+            color: #555;
+            max-width: 800px;
+            margin: 0 auto;
+            margin-bottom: 30px;
+        }
+
+        .our-mission {
+            padding: 60px 0;
+            background-color: #ffffff;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 90px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .mission-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .mission-image img {
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .mission-text h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .mission-text p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            #navbar-logo {
+                width: 20%;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</body>
+</html>

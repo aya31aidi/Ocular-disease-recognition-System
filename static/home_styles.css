@@ -1,0 +1,162 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    color: #333;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+.logo img {
+    width: 50px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.header-buttons .btn {
+    display: inline-block; /* To make the <a> tag behave like a button */
+    padding: 10px 20px;
+    border: 2px solid #d9534f;
+    background-color: transparent;
+    color: #d9534f;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none; /* Removes underline from <a> tag */
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+
+.header-buttons .btn.action1 {
+    background-color: #d9534f;
+    color: #fff;
+}
+
+.header-buttons .btn:hover {
+    background-color: #d9534f;
+    color: #fff;
+}
+
+main {
+    text-align: center;
+    margin-top: 50px;
+}
+
+main h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+main p {
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.cta-buttons .btn {
+    padding: 15px 30px;
+    border: none;
+    background-color: #d9534f;
+    color: #fff;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.cta-buttons .btn.learn-more {
+    background-color: transparent;
+    color: #d9534f;
+    border: 2px solid #d9534f;
+}
+
+.cta-buttons .btn:hover {
+    background-color: #c9302c;
+    color: #fff;
+}
+.features {
+    padding: 60px 0;
+    background-color: #ffffff;
+}
+
+.features .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.features-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.features-image img {
+    width: 200%;
+    max-width: 800px;
+    border-radius: 8px;
+}
+
+.features-text {
+    flex: 1;
+    padding-left: 200px;
+}
+
+.features-text h2 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.features-text p {
+    font-size: 16px;
+    color: #555555;
+    margin-bottom: 40px;
+}
+#navbar-logo {
+    width: 30%; /* Le logo prendra 10% de la largeur de la navbar */
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    #navbar-logo {
+        width: 20%;
+    }
+    
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
