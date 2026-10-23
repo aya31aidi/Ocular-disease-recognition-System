@@ -49,8 +49,17 @@ class Analysis(db.Model):
     demo = db.Column(db.Boolean, default=False)
     inference_ms = db.Column(db.Integer)
 
-    image_path = db.Column(db.String(255), nullable=False)
+    # Images live in the database so history survives on hosts without a
+    # persistent disk (Vercel, Render free tier). Deferred so list views stay light.
+    image_jpeg = db.deferred(db.Column(db.LargeBinary))
+    heatmap_jpeg = db.deferred(db.Column(db.LargeBinary))
+    # Filesystem paths written by earlier versions; kept so old records still load.
+    image_path = db.Column(db.String(255), nullable=False, default="")
     heatmap_path = db.Column(db.String(255))
+
+    @property
+    def has_heatmap(self) -> bool:
+        return bool(self.heatmap_path) or self.heatmap_jpeg is not None
 
     @property
     def probabilities(self) -> list[dict]:

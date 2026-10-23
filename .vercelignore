@@ -1,0 +1,15 @@
+# The 160 MB weights and TensorFlow cannot fit in a Vercel function (250 MB limit),
+# so the hosted version runs the demo predictor. Everything below is not needed at runtime.
+models/
+instance/
+tests/
+training/
+docs/
+*.ipynb
+Dockerfile
+.dockerignore
+.github/
+requirements-ml.txt
+requirements-dev.txt
+.pytest_cache/
+__pycache__/

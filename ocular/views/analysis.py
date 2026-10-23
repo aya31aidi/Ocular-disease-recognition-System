@@ -1,4 +1,5 @@
 import base64
+import io
 import json
 import uuid
 from collections import Counter
@@ -23,19 +24,8 @@ def _data_uri(jpeg: bytes | None) -> str | None:
 
 
 def _save_analysis(prediction, filename, eye_side, note) -> Analysis:
-    analysis_id = uuid.uuid4().hex
-    folder = Path(current_app.config["UPLOAD_DIR"]) / str(current_user.id)
-    folder.mkdir(parents=True, exist_ok=True)
-
-    image_rel = f"{current_user.id}/{analysis_id}.jpg"
-    (folder / f"{analysis_id}.jpg").write_bytes(prediction.image_jpeg)
-    heatmap_rel = None
-    if prediction.heatmap_jpeg:
-        heatmap_rel = f"{current_user.id}/{analysis_id}_cam.jpg"
-        (folder / f"{analysis_id}_cam.jpg").write_bytes(prediction.heatmap_jpeg)
-
     analysis = Analysis(
-        id=analysis_id,
+        id=uuid.uuid4().hex,
         user_id=current_user.id,
         original_filename=filename[:255] if filename else None,
         eye_side=eye_side,
@@ -46,8 +36,8 @@ def _save_analysis(prediction, filename, eye_side, note) -> Analysis:
         warnings_json=json.dumps(prediction.warnings),
         demo=prediction.demo,
         inference_ms=prediction.inference_ms,
-        image_path=image_rel,
-        heatmap_path=heatmap_rel,
+        image_jpeg=prediction.image_jpeg,
+        heatmap_jpeg=prediction.heatmap_jpeg,
     )
     db.session.add(analysis)
     db.session.commit()
@@ -115,7 +105,7 @@ def detail(analysis_id):
         "demo": a.demo,
         "inference_ms": a.inference_ms,
         "image_src": url_for("analysis.image", analysis_id=a.id, kind="original"),
-        "heatmap_src": url_for("analysis.image", analysis_id=a.id, kind="heatmap") if a.heatmap_path else None,
+        "heatmap_src": url_for("analysis.image", analysis_id=a.id, kind="heatmap") if a.has_heatmap else None,
         "filename": a.original_filename,
         "eye_side": EYE_SIDES.get(a.eye_side),
         "note": a.note,
@@ -129,13 +119,15 @@ def detail(analysis_id):
 @login_required
 def image(analysis_id, kind):
     a = _owned_or_404(analysis_id)
-    rel = a.image_path if kind == "original" else a.heatmap_path
-    if not rel:
-        abort(404)
-    path = Path(current_app.config["UPLOAD_DIR"]) / rel
-    if not path.exists():
-        abort(404)
-    response = send_file(path, mimetype="image/jpeg")
+    data = a.image_jpeg if kind == "original" else a.heatmap_jpeg
+    if data is not None:
+        response = send_file(io.BytesIO(data), mimetype="image/jpeg")
+    else:
+        rel = a.image_path if kind == "original" else a.heatmap_path
+        path = Path(current_app.config["UPLOAD_DIR"]) / rel if rel else None
+        if path is None or not path.exists():
+            abort(404)
+        response = send_file(path, mimetype="image/jpeg")
     response.headers["Cache-Control"] = "private, max-age=86400"
     return response
 

@@ -6,7 +6,6 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import cv2
 import numpy as np
 
 from ..conditions import CONDITIONS
@@ -193,10 +192,11 @@ class DemoPredictor(BasePredictor):
         if with_heatmap:
             # A blurred edge map highlights vessels and the optic disc, which is
             # roughly where a real Grad-CAM tends to focus on fundus photos.
-            gray = cv2.cvtColor(cv2.resize(fundus, (224, 224)), cv2.COLOR_RGB2GRAY).astype(np.float32)
-            edges = np.hypot(cv2.Sobel(gray, cv2.CV_32F, 1, 0), cv2.Sobel(gray, cv2.CV_32F, 0, 1))
-            cam = cv2.GaussianBlur(edges, (0, 0), 12)
-            cam = cam / cam.max() if cam.max() > 0 else None
+            gray = pp.to_gray(pp.resize_linear(fundus, 224, 224))
+            edges = np.hypot(*np.gradient(gray))
+            if edges.max() > 0:
+                cam = pp.blur(edges / edges.max(), radius=12)
+                cam = cam / cam.max() if cam.max() > 0 else None
         return probs, cam
 
 
@@ -212,6 +212,9 @@ def create_predictor(config) -> BasePredictor:
         if mode == "off":
             raise FileNotFoundError(f"Model weights not found at {path}")
         log.warning("Model weights not found at %s, running in demo mode", path)
+        if config.get("SERVERLESS"):
+            # TensorFlow plus the weights are far beyond serverless bundle limits.
+            return DemoPredictor(formats, "This hosted version runs without the 160 MB TensorFlow model.")
         return DemoPredictor(formats, f"Model weights were not found at {path.name}.")
 
     with open(path, "rb") as fh:
@@ -227,9 +230,15 @@ def create_predictor(config) -> BasePredictor:
         predictor = KerasPredictor(path, formats)
         log.info("Loaded model from %s", path)
         return predictor
+    except ImportError:
+        if mode == "off":
+            raise
+        log.warning("TensorFlow is not installed, running in demo mode")
+        reason = ("This hosted version runs without the 160 MB TensorFlow model."
+                  if config.get("SERVERLESS") else "TensorFlow is not installed.")
+        return DemoPredictor(formats, reason)
     except Exception as exc:
         if mode == "off":
             raise
         log.exception("Could not load the model, running in demo mode")
-        reason = "TensorFlow is not installed." if isinstance(exc, ImportError) else f"The model failed to load: {exc}"
-        return DemoPredictor(formats, reason)
+        return DemoPredictor(formats, f"The model failed to load: {exc}")

@@ -1,9 +1,10 @@
-# Web app and image pipeline. Without TensorFlow the app runs in demo mode.
+# Web app and image pipeline. Without TensorFlow the app runs in demo mode,
+# which keeps this set small enough for serverless hosts such as Vercel.
 Flask>=3.0
 Flask-SQLAlchemy>=3.1
 Flask-Login>=0.6.3
 Flask-WTF>=1.2
 numpy>=1.26
 Pillow>=10.0
-opencv-python-headless>=4.8
+psycopg[binary]>=3.1   # only used when DATABASE_URL points to Postgres
 gunicorn>=22.0; platform_system != "Windows"

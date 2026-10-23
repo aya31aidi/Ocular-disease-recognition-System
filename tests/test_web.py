@@ -72,17 +72,19 @@ def test_signed_in_analysis_is_saved_and_private(app, signed_in, fundus_jpeg):
     assert signed_in.get(f"/analyses/{analysis_id}/original.jpg").status_code == 404
 
 
-def test_delete_removes_record_and_files(app, signed_in, fundus_jpeg):
+def test_delete_removes_record(app, signed_in, fundus_jpeg):
     signed_in.post("/analyze", data={"file": (io.BytesIO(fundus_jpeg), "eye.jpg")},
                    content_type="multipart/form-data")
     with app.app_context():
-        analysis_id = Analysis.query.one().id
-    assert any(app.config["UPLOAD_DIR"].rglob("*.jpg"))
+        analysis = Analysis.query.one()
+        analysis_id = analysis.id
+        assert analysis.image_jpeg[:2] == b"\xff\xd8"  # stored in the database, not on disk
+    assert not any(app.config["UPLOAD_DIR"].rglob("*.jpg"))
 
     signed_in.post(f"/analyses/{analysis_id}/delete")
     with app.app_context():
         assert Analysis.query.count() == 0
-    assert not any(app.config["UPLOAD_DIR"].rglob("*.jpg"))
+    assert signed_in.get(f"/analyses/{analysis_id}/original.jpg").status_code == 404
 
 
 def test_dashboard_requires_login(client):

@@ -2,11 +2,8 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+    PIP_NO_CACHE_DIR=1 \
+    PORT=8000
 
 WORKDIR /app
 COPY requirements.txt requirements-ml.txt ./
@@ -18,4 +15,5 @@ USER appuser
 
 EXPOSE 8000
 # One worker keeps a single copy of the ~160 MB model in memory; threads handle concurrency.
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "--threads", "4", "--timeout", "120", "app:app"]
+# PORT can be overridden by the host (Hugging Face Spaces, Render, Railway...).
+CMD gunicorn --bind "0.0.0.0:${PORT}" --workers 1 --threads 4 --timeout 120 app:app

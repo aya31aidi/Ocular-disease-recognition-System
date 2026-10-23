@@ -35,6 +35,7 @@ def create_app(config_object=Config, **overrides) -> Flask:
     with app.app_context():
         from . import models  # noqa: F401  (registers tables)
         db.create_all()
+        _add_missing_columns()
 
     app.extensions["predictor"] = create_predictor(app.config)
 
@@ -54,6 +55,19 @@ def create_app(config_object=Config, **overrides) -> Flask:
 
     _register_error_handlers(app)
     return app
+
+
+def _add_missing_columns() -> None:
+    """create_all() never alters existing tables; databases created by the first
+    version store images on disk and lack the image columns."""
+    import sqlalchemy as sa
+
+    columns = {c["name"] for c in sa.inspect(db.engine).get_columns("analysis")}
+    blob_type = db.LargeBinary().compile(dialect=db.engine.dialect)
+    with db.engine.begin() as conn:
+        for name in ("image_jpeg", "heatmap_jpeg"):
+            if name not in columns:
+                conn.execute(sa.text(f"ALTER TABLE analysis ADD COLUMN {name} {blob_type}"))
 
 
 def _register_error_handlers(app: Flask) -> None:

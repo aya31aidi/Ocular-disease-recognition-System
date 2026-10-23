@@ -97,7 +97,7 @@ def make_dataset(frame: pd.DataFrame, image_dir: Path, batch: int, training: boo
     def load(path, label):
         img = tf.io.decode_jpeg(tf.io.read_file(path), channels=3)
         img = tf.image.resize(img, (IMAGE_SIZE, IMAGE_SIZE))
-        img = tf.reverse(img, axis=[-1])  # RGB -> BGR, as cv2.imread gives in the app
+        img = tf.reverse(img, axis=[-1])  # RGB -> BGR, matching cv2.imread in the notebook and the app
         return img, label
 
     def augment(img, label):

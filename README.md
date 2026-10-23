@@ -27,7 +27,7 @@ The project covers the full path from research notebook to usable product: train
 - **Condition reference** with fundus signs, symptoms and typical next steps for each class
 - **Printable report** (save as PDF), light and dark themes, responsive down to phone width
 - **Demo mode**: when the trained weights are missing, the app still runs end to end with clearly labelled synthetic scores
-- **Tests and CI**: 44 pytest tests covering preprocessing, the Keras/Grad-CAM path, auth, access control and the API
+- **Tests and CI**: 48 pytest tests covering preprocessing, the Keras/Grad-CAM path, auth, access control and the API
 
 ## Bugs fixed from the first version
 
@@ -58,18 +58,37 @@ The trained weights (`models/ocular_disease_model.h5`, about 160 MB) are stored 
 
 ```bash
 docker build -t retinalens .
-docker run -p 8000:8000 -v "$PWD/models:/app/models" retinalens
+docker run -p 8000:8000 retinalens
 ```
 
 ### Configuration
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `SECRET_KEY` | generated and stored in `instance/` | Session signing key; set it explicitly in production |
+| `SECRET_KEY` | generated and stored in `instance/` | Session signing key; required in production |
+| `DATABASE_URL` / `POSTGRES_URL` | `sqlite:///instance/ocular.db` | Any SQLAlchemy URL; `postgres://` URLs are switched to the psycopg driver automatically |
 | `ODR_MODEL_PATH` | `models/ocular_disease_model.h5` | Location of the Keras weights |
 | `ODR_DEMO_MODE` | `auto` | `auto` falls back to demo when weights are missing, `on` forces demo, `off` refuses to start without a model |
-| `DATABASE_URL` | `sqlite:///instance/ocular.db` | Any SQLAlchemy URL |
 | `PORT`, `HOST`, `FLASK_DEBUG` | `5000`, `127.0.0.1`, `0` | Development server options |
+
+## Deployment
+
+Accounts, analyses and their images are all stored in the database, so the app works on hosts without a persistent disk as long as `DATABASE_URL` points to a real database.
+
+### Full version with the model: Docker hosts
+
+TensorFlow (~1.4 GB) and the weights (~160 MB) need a container host. On [Hugging Face Spaces](https://huggingface.co/spaces), a free Docker Space with 16 GB of RAM, the repository can be pushed as is. The Space's `README.md` needs `sdk: docker` and `app_port: 8000` in its front matter, and `SECRET_KEY` goes in the Space secrets. Render, Railway and Fly.io work with the same Dockerfile, given at least 2 GB of RAM.
+
+### Lightweight demo: Vercel
+
+Vercel functions are limited to about 250 MB, far below TensorFlow's size. The `.vercelignore` therefore leaves out the weights and anything not needed at runtime. Vercel installs only `requirements.txt` (no TensorFlow, no OpenCV, about 90 MB), and the hosted site runs in **demo mode** with synthetic scores, clearly labelled on every page.
+
+1. Import the GitHub repository in Vercel. Flask is detected from `app.py` automatically.
+2. Add a Postgres database from the Vercel Marketplace (Neon has a free tier). It sets `DATABASE_URL` for the project.
+3. Add a `SECRET_KEY` environment variable, for example the output of `python -c "import secrets; print(secrets.token_hex(32))"`.
+4. Redeploy.
+
+Without a database, Vercel falls back to SQLite in `/tmp`. The site works, but accounts disappear whenever the function restarts.
 
 ## API
 
@@ -172,4 +191,4 @@ This is a research and portfolio project. Its output is a screening aid, not a m
 
 ---
 
-Built by **Aya Aidi**: Flask · TensorFlow/Keras · OpenCV · SQLAlchemy
+Built by **Aya Aidi**: Flask · TensorFlow/Keras · NumPy · SQLAlchemy
