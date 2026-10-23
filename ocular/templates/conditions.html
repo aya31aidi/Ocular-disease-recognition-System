@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Conditions{% endblock %}
+{% block description %}Reference notes on the eight retinal conditions the model classifies: what they are, how they look on a fundus photograph and typical next steps.{% endblock %}
+
+{% block content %}
+<div class="container">
+  <header class="page-head">
+    <span class="eyebrow">Reference</span>
+    <h1>The eight <em>classes</em></h1>
+    <p class="lede">What each class means, what the network is likely picking up on in the photograph, and what an eye-care professional would typically do next.</p>
+  </header>
+
+  <div class="cond-layout">
+    <nav class="cond-index" aria-label="Conditions">
+      {% for c in conditions %}
+      <a href="#{{ c.key }}" data-spy="{{ c.key }}"><span>{{ '%02d' % loop.index0 }}</span>{{ c.short_name }}</a>
+      {% endfor %}
+    </nav>
+
+    <div>
+      {% for c in conditions %}
+      <section class="cond-section" id="{{ c.key }}">
+        <header>
+          <span class="eyebrow plain">Class {{ loop.index0 }} · {{ "{:,}".format(c.training_images) }} training images</span>
+          <h2>{{ c.name }}</h2>
+          <p class="tagline">{{ c.tagline }}</p>
+          <div class="row"><span class="badge badge-{{ c.urgency }}">{{ urgency_labels[c.urgency] }}</span></div>
+        </header>
+        <p class="overview">{{ c.overview }}</p>
+        <div class="info-grid">
+          <div><h3>On a fundus photo</h3><ul>{% for s in c.fundus_signs %}<li>{{ s }}</li>{% endfor %}</ul></div>
+          <div><h3>Common symptoms</h3><ul>{% for s in c.symptoms %}<li>{{ s }}</li>{% endfor %}</ul></div>
+          <div><h3>Typical next steps</h3><ul>{% for s in c.next_steps %}<li>{{ s }}</li>{% endfor %}</ul></div>
+        </div>
+      </section>
+      {% endfor %}
+
+      <div class="disclaimer">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <p>General educational information, written for context around the model's output. It is not medical advice and does not replace an examination.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

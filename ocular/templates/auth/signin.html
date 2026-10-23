@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "partials/_fundus.html" import fundus %}
+{% block title %}Sign in{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-panel">
+    <form class="auth-form" method="post" action="{{ url_for('auth.signin') }}" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+      <span class="eyebrow" style="margin-bottom:14px">Welcome back</span>
+      <h1>Sign in</h1>
+      <p>Pick up where the last analysis left off.</p>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input class="input" type="email" id="email" name="email" value="{{ email }}" autocomplete="email" required autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="password-wrap">
+          <input class="input" type="password" id="password" name="password" autocomplete="current-password" required>
+          <button type="button" data-reveal="password">Show</button>
+        </div>
+      </div>
+      <div class="form-split">
+        <label class="checkbox"><input type="checkbox" name="remember" value="1"> Keep me signed in</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Sign in</button>
+      <p class="auth-switch">New here? <a href="{{ url_for('auth.signup', next=request.args.get('next')) }}">Create an account</a></p>
+    </form>
+  </div>
+
+  <aside class="auth-aside" aria-hidden="true">
+    {{ fundus('auth', markers=false) }}
+    <p class="quote">The retina is the only place in the body where blood vessels can be seen directly.</p>
+    <ul>
+      <li>Private history of every analysis</li>
+      <li>Heatmaps and scores kept side by side</li>
+      <li>Delete any record at any time</li>
+    </ul>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}" defer></script>
+{% endblock %}

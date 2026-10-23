@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% from "partials/_fundus.html" import fundus %}
+{% block title %}Retinal disease screening{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Retinal screening · deep learning</span>
+      <h1 class="display">Eight eye conditions, <em>one photograph.</em></h1>
+      <p class="lede">
+        A VGG19 network trained on {{ "{:,}".format(card.images) }} fundus images from ODIR-5K reads a photo of the back
+        of the eye, scores it against cataract, glaucoma, diabetic retinopathy and five other classes, then shows where it
+        looked with a Grad-CAM heatmap.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('analysis.analyze') }}">
+          Analyze an image
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost btn-lg" href="{{ url_for('pages.model_card') }}">Read the model card</a>
+      </div>
+      <dl class="hero-stats">
+        <div><dd>8</dd><dt>classes</dt></div>
+        <div><dd>{{ "{:,}".format(card.images) }}</dd><dt>training images</dt></div>
+        <div><dd>{{ (card.test_accuracy * 100) | round(0) | int }}%</dd><dt>test accuracy</dt></div>
+        <div><dd>&lt;0.5s</dd><dt>per image on a laptop CPU</dt></div>
+      </dl>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="ring"></div>
+      {{ fundus('hero') }}
+      <div class="float-card status">
+        <span class="live-dot"></span>
+        <span class="mono">Grad-CAM · block5_conv4</span>
+      </div>
+      <div class="float-card result">
+        <span class="label">Illustrative output</span>
+        <div class="row"><strong>Diabetic retinopathy</strong><span class="mono">0.81</span></div>
+        <div class="mini-bar"><span style="width:81%"></span></div>
+        <div class="row muted"><span>Normal</span><span class="mono">0.09</span></div>
+        <div class="mini-bar dim"><span style="width:9%"></span></div>
+        <div class="row muted"><span>AMD</span><span class="mono">0.05</span></div>
+        <div class="mini-bar dim"><span style="width:5%"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="logo-strip">
+  <div class="container">
+    <span>TensorFlow / Keras</span>
+    <span>VGG19 · ImageNet</span>
+    <span>Grad-CAM</span>
+    <span>Flask · SQLAlchemy</span>
+    <span>ODIR-5K dataset</span>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">How it works</span>
+      <h2 class="h-section">From upload to explanation <em>in four steps</em></h2>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <span class="step-num">01</span>
+        <h3>Upload</h3>
+        <p>A colour fundus photograph in JPEG, PNG, TIFF, BMP or WebP. Rotation from phone EXIF data is corrected automatically.</p>
+        <span class="chip">≤ 10 MB</span>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <h3>Preprocess</h3>
+        <p>The black camera frame is trimmed so the retinal disc fills the input, then the image is resized and converted to the exact format used in training.</p>
+        <span class="chip">224 × 224 · BGR</span>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <h3>Classify</h3>
+        <p>Frozen VGG19 convolutional layers extract features; a small dense head trained on ODIR-5K turns them into eight probabilities.</p>
+        <span class="chip">softmax · 8 classes</span>
+      </div>
+      <div class="step">
+        <span class="step-num">04</span>
+        <h3>Explain</h3>
+        <p>Gradients of the winning class flow back to the last convolutional block to highlight the regions that drove the decision.</p>
+        <span class="chip">Grad-CAM</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">What it looks for</span>
+      <h2 class="h-section">Eight classes, <em>one softmax</em></h2>
+      <p class="lede">Each class comes with plain-language notes on what it means, what it looks like on a fundus photo and what usually happens next.</p>
+    </div>
+    <div class="cond-grid reveal">
+      {% for c in conditions %}
+      <a class="cond-card" href="{{ url_for('pages.conditions', _anchor=c.key) }}">
+        <span class="idx">{{ '%02d' % loop.index0 }}</span>
+        <h3>{{ c.name }}</h3>
+        <p>{{ c.tagline }}</p>
+        <span class="meta"><span>{{ "{:,}".format(c.training_images) }} images</span><span class="arrow">→</span></span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container feature-split">
+    <div class="reveal">
+      <span class="eyebrow">Under the hood</span>
+      <h2 class="h-section" style="margin-top:14px">Built as a product, <em>not just a notebook</em></h2>
+      <div class="feature-list">
+        <div class="feature">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/></svg></div>
+          <div><h3>Explainable by default</h3><p>Every prediction ships with a Grad-CAM overlay and a before/after slider, plus the full probability distribution instead of a single label.</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg></div>
+          <div><h3>Input quality checks</h3><p>Low resolution, under- or over-exposure and images that do not look like a fundus photo are flagged before anyone trusts the number.</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+          <div><h3>Private history</h3><p>Signed-in users keep a searchable record of past analyses. Anonymous uploads are processed in memory and never written to disk.</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"/></svg></div>
+          <div><h3>REST API</h3><p>The same pipeline is available as JSON for scripts, notebooks or other services.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-window reveal" aria-label="API example">
+      <div class="bar"><i></i><i></i><i></i><span>POST /api/v1/predict</span></div>
+<pre><span class="c"># send a fundus photo</span>
+<span class="k">curl</span> -F <span class="s">"file=@fundus.jpg"</span> \
+  {{ request.host_url }}api/v1/predict
+
+<span class="c"># response</span>
+{
+  <span class="s">"prediction"</span>: {
+    <span class="s">"key"</span>: <span class="s">"glaucoma"</span>,
+    <span class="s">"label"</span>: <span class="s">"Glaucoma"</span>,
+    <span class="s">"confidence"</span>: <span class="n">0.8731</span>
+  },
+  <span class="s">"probabilities"</span>: [ <span class="c">/* all 8 classes */</span> ],
+  <span class="s">"warnings"</span>: [],
+  <span class="s">"inference_ms"</span>: <span class="n">372</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="honest reveal">
+      <div class="big">{{ (card.test_accuracy * 100) | round(0) | int }}<small>%</small></div>
+      <div>
+        <h2>Honest numbers, documented limits</h2>
+        <p>
+          The model reaches {{ card.test_accuracy | pct }} accuracy on a held-out test set of {{ card.split.test }} images.
+          That is a solid baseline for an eight-way problem, and far from clinical grade. The model card covers the
+          training curves, the class imbalance and a data-leakage issue worth knowing about.
+        </p>
+        <a class="btn btn-ghost" href="{{ url_for('pages.model_card') }}">See the full model card →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container cta-band reveal">
+    <span class="eyebrow">Try it</span>
+    <h2 class="display">See what the network <em>sees.</em></h2>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('analysis.analyze') }}">Analyze an image</a>
+  </div>
+</section>
+{% endblock %}

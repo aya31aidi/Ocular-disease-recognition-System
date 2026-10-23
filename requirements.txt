@@ -1,0 +1,9 @@
+# Web app and image pipeline. Without TensorFlow the app runs in demo mode.
+Flask>=3.0
+Flask-SQLAlchemy>=3.1
+Flask-Login>=0.6.3
+Flask-WTF>=1.2
+numpy>=1.26
+Pillow>=10.0
+opencv-python-headless>=4.8
+gunicorn>=22.0; platform_system != "Windows"

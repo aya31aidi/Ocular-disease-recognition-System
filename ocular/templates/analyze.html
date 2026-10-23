@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Analyze an image{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% include "partials/_demo_banner.html" %}
+
+  <header class="page-head">
+    <span class="eyebrow">New analysis</span>
+    <h1>Upload a <em>fundus</em> photograph</h1>
+    <p class="lede">The image is cropped to the retinal disc, scored against eight classes and returned with a heatmap of the regions that influenced the result.</p>
+  </header>
+
+  <div class="analyze-grid">
+    <form class="card" id="analyze-form" action="{{ url_for('analysis.analyze') }}" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="dropzone" id="dropzone">
+        <input type="file" name="file" id="file-input" accept="image/jpeg,image/png,image/bmp,image/tiff,image/webp" required aria-label="Fundus image">
+        <div class="dropzone-empty">
+          <div class="dropzone-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          </div>
+          <strong>Drop an image here, or <span class="u">browse</span></strong>
+          <span class="muted">JPEG, PNG, TIFF, BMP or WebP · up to 10 MB</span>
+        </div>
+        <div class="preview">
+          <div class="preview-img">
+            <img id="preview-img" alt="Selected fundus image">
+            <div class="scan-overlay"></div>
+          </div>
+          <div class="preview-meta">
+            <span class="eyebrow plain">Selected image</span>
+            <span class="name" id="preview-name"></span>
+            <span class="details" id="preview-details"></span>
+            <button type="button" class="btn btn-ghost btn-sm" id="clear-file">Choose another</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <span class="field-label">Eye</span>
+          <div class="segmented" role="radiogroup" aria-label="Eye">
+            <input type="radio" name="eye_side" id="eye-none" value="" checked><label for="eye-none">Not set</label>
+            <input type="radio" name="eye_side" id="eye-left" value="left"><label for="eye-left">Left</label>
+            <input type="radio" name="eye_side" id="eye-right" value="right"><label for="eye-right">Right</label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="note">Note <span class="muted">(optional)</span></label>
+          <input class="input" type="text" id="note" name="note" maxlength="280" placeholder="e.g. follow-up scan, patient reference">
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-label-idle">Run analysis</span>
+          <span class="btn-label-busy">Analyzing…</span>
+        </button>
+        <span class="progress-text" id="progress-text" aria-live="polite">
+          {% if current_user.is_authenticated %}Saved to history after analysis{% else %}Not stored · <a href="{{ url_for('auth.signin', next=request.path) }}">sign in</a> to keep a history{% endif %}
+        </span>
+      </div>
+    </form>
+
+    <aside class="side-stack">
+      <div class="card">
+        <h2 class="card-title">For reliable results</h2>
+        <ul class="checklist">
+          <li>Colour fundus photograph from a retinal camera</li>
+          <li>Optic disc and macula both in frame</li>
+          <li>Even illumination, no heavy glare</li>
+          <li>One eye per image</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2 class="card-title">Not supported</h2>
+        <ul class="checklist cross">
+          <li>External photos of the eye or face</li>
+          <li>OCT scans or angiography</li>
+          <li>Screenshots with overlays or text</li>
+        </ul>
+      </div>
+      <div class="card side-note">
+        <h2 class="card-title">Privacy</h2>
+        <p>Images analysed without an account stay in memory for the length of the request and are never written to disk.</p>
+        <p>Signed-in analyses are stored privately and can be deleted at any time.</p>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/analyze.js') }}" defer></script>
+{% endblock %}

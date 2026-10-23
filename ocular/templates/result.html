@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}{{ condition.name }} · Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% include "partials/_demo_banner.html" %}
+
+  <header class="result-head">
+    <div class="title">
+      <span class="eyebrow">
+        {% if result.created_at %}Analysis · {{ result.created_at.strftime('%d %b %Y, %H:%M') }} UTC{% else %}Analysis result{% endif %}
+      </span>
+      <h1>{{ condition.name }}</h1>
+      <div class="badges">
+        <span class="badge badge-{{ condition.urgency }}">{{ urgency_labels[condition.urgency] }}</span>
+        {% if result.demo %}<span class="badge badge-demo">Synthetic demo output</span>{% endif %}
+        {% if result.eye_side %}<span class="badge no-dot">{{ result.eye_side }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn btn-ghost" data-print>
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></svg>
+        Save as PDF
+      </button>
+      {% if result.id %}
+      <a class="btn btn-ghost" href="{{ url_for('analysis.dashboard') }}">History</a>
+      {% endif %}
+      <a class="btn btn-primary" href="{{ url_for('analysis.analyze') }}">New analysis</a>
+    </div>
+  </header>
+
+  <div class="result-grid">
+    <section class="card viewer" aria-label="Image viewer">
+      <div class="viewer-tabs">
+        {% if result.heatmap_src %}
+        <div class="segmented" role="radiogroup" aria-label="View">
+          <input type="radio" name="view" id="view-compare" value="compare" checked><label for="view-compare">Compare</label>
+          <input type="radio" name="view" id="view-heatmap" value="heatmap"><label for="view-heatmap">Heatmap</label>
+          <input type="radio" name="view" id="view-original" value="original"><label for="view-original">Original</label>
+        </div>
+        {% else %}
+        <span class="muted">Heatmap unavailable for this analysis</span>
+        {% endif %}
+        <span class="mono muted">{{ result.filename or 'upload' }}</span>
+      </div>
+      <div class="viewer-stage" id="viewer" data-mode="{{ 'compare' if result.heatmap_src else 'original' }}">
+        <img class="layer-orig" src="{{ result.image_src }}" alt="Uploaded fundus photograph">
+        {% if result.heatmap_src %}
+        <img class="layer-heat" src="{{ result.heatmap_src }}" alt="Grad-CAM heatmap over the fundus photograph">
+        <span class="tag tag-left">Original</span>
+        <span class="tag tag-right">Grad-CAM</span>
+        <div class="handle"></div>
+        <input class="split-input" type="range" min="0" max="100" value="50" aria-label="Comparison slider">
+        {% endif %}
+      </div>
+      {% if result.heatmap_src %}
+      <div class="viewer-legend">
+        <span>Low</span><span class="legend-ramp"></span><span>High influence on “{{ condition.short_name }}”</span>
+      </div>
+      {% endif %}
+    </section>
+
+    <div class="stack">
+      <section class="card score-card" aria-label="Scores">
+        <div class="score-top">
+          <div class="ring-meter" style="--p: {{ result.confidence }}">
+            <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54"/><circle class="value" cx="60" cy="60" r="54"/></svg>
+            <div class="center"><strong>{{ (result.confidence * 100) | round(0) | int }}%</strong><span>confidence</span></div>
+          </div>
+          <div>
+            <h2>{{ condition.tagline }}</h2>
+            <p>
+              {% set runner = result.probabilities[1] %}
+              Next most likely: {{ runner.name }} at {{ runner.probability | pct }}.
+              {% if result.confidence - runner.probability < 0.2 %}The model is unsure: the top two classes are close.{% endif %}
+            </p>
+          </div>
+        </div>
+        <div>
+          <h3 class="card-title" style="margin-bottom:12px">All classes</h3>
+          <ol class="prob-list">
+            {% for p in result.probabilities %}
+            <li class="prob-row{% if loop.first %} top{% endif %}">
+              <span class="name">{{ p.name }}</span>
+              <span class="val">{{ p.probability | pct }}</span>
+              <span class="bar"><span style="--w: {{ [p.probability * 100, 0.6] | max }}%"></span></span>
+            </li>
+            {% endfor %}
+          </ol>
+        </div>
+      </section>
+
+      {% if result.warnings %}
+      <section class="card warn-card" aria-label="Input warnings">
+        <h2 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          Input checks flagged {{ result.warnings | length }} issue{{ 's' if result.warnings | length > 1 }}
+        </h2>
+        <ul>{% for w in result.warnings %}<li>{{ w }}</li>{% endfor %}</ul>
+      </section>
+      {% endif %}
+    </div>
+  </div>
+
+  <section class="card" style="margin-top:24px">
+    <div class="card-title">
+      <span>What this class means</span>
+      <a class="mono muted" href="{{ url_for('pages.conditions', _anchor=condition.key) }}">Reference →</a>
+    </div>
+    <p style="color:var(--ink-2); max-width:80ch; margin-bottom:28px">{{ condition.overview }}</p>
+    <div class="info-grid">
+      <div><h3>On a fundus photo</h3><ul>{% for s in condition.fundus_signs %}<li>{{ s }}</li>{% endfor %}</ul></div>
+      <div><h3>Common symptoms</h3><ul>{% for s in condition.symptoms %}<li>{{ s }}</li>{% endfor %}</ul></div>
+      <div><h3>Typical next steps</h3><ul>{% for s in condition.next_steps %}<li>{{ s }}</li>{% endfor %}</ul></div>
+    </div>
+  </section>
+
+  <dl class="meta-list" style="margin-top:24px">
+    <div><dt>Model</dt><dd>{{ 'Demo predictor' if result.demo else 'VGG19 · ODIR-5K' }}</dd></div>
+    <div><dt>Inference</dt><dd>{{ result.inference_ms }} ms</dd></div>
+    <div><dt>Eye</dt><dd>{{ result.eye_side or '—' }}</dd></div>
+    <div><dt>Note</dt><dd title="{{ result.note or '' }}">{{ result.note or '—' }}</dd></div>
+  </dl>
+
+  <div class="disclaimer">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <p>This result comes from a research model with about 71% test accuracy and is not a medical diagnosis. It should be reviewed by an ophthalmologist or optometrist together with a full clinical examination.</p>
+  </div>
+
+  {% if result.id %}
+  <form class="no-print" action="{{ url_for('analysis.delete', analysis_id=result.id) }}" method="post" style="padding-bottom:64px" data-confirm="Delete this analysis and its images permanently?">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-danger btn-sm">Delete this analysis</button>
+  </form>
+  {% else %}
+  <div style="padding-bottom:64px"></div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/result.js') }}" defer></script>
+{% endblock %}

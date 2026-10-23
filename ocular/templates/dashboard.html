@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "partials/_fundus.html" import fundus %}
+{% block title %}History{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-bottom:96px">
+  {% include "partials/_demo_banner.html" %}
+
+  <header class="page-head dash-head">
+    <div style="display:grid; gap:14px">
+      <span class="eyebrow">History</span>
+      <h1>Hello, <em>{{ current_user.first_name }}</em></h1>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('analysis.analyze') }}">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      New analysis
+    </a>
+  </header>
+
+  <dl class="stat-grid">
+    <div class="stat"><dt>Analyses</dt><dd>{{ stats.total }}</dd><span class="sub">all time</span></div>
+    <div class="stat"><dt>Flagged</dt><dd>{{ stats.flagged }}</dd><span class="sub">anything other than normal</span></div>
+    <div class="stat"><dt>Most frequent</dt><dd style="font-size:clamp(1.6rem,3vw,2.2rem)">{{ conditions_by_key[stats.most_common[0]].short_name if stats.most_common else '—' }}</dd><span class="sub">{% if stats.most_common %}{{ stats.most_common[1] }} result{{ 's' if stats.most_common[1] != 1 }}{% else %}no data yet{% endif %}</span></div>
+    <div class="stat"><dt>Last analysis</dt><dd style="font-size:clamp(1.6rem,3vw,2.2rem)">{{ stats.latest.strftime('%d %b') if stats.latest else '—' }}</dd><span class="sub">{{ stats.latest.strftime('%Y · %H:%M UTC') if stats.latest else 'no data yet' }}</span></div>
+  </dl>
+
+  {% if stats.total %}
+  <nav class="chips" aria-label="Filter by result">
+    <a class="chip-link{% if not selected %} active{% endif %}" href="{{ url_for('analysis.dashboard') }}">All <span class="count">{{ stats.total }}</span></a>
+    {% for c in conditions if counts[c.key] %}
+    <a class="chip-link{% if selected == c.key %} active{% endif %}" href="{{ url_for('analysis.dashboard', condition=c.key) }}">{{ c.short_name }} <span class="count">{{ counts[c.key] }}</span></a>
+    {% endfor %}
+  </nav>
+
+  <div class="history-grid">
+    {% for a in page.items %}
+    {% set c = conditions_by_key[a.predicted_key] %}
+    <a class="history-card" href="{{ url_for('analysis.detail', analysis_id=a.id) }}">
+      <div class="thumb">
+        <img src="{{ url_for('analysis.image', analysis_id=a.id, kind='original') }}" alt="" loading="lazy">
+        <span class="badge badge-{{ c.urgency }}">{{ c.short_name }}</span>
+      </div>
+      <div class="body">
+        <strong>{{ c.name }}</strong>
+        <div class="row"><span>{{ a.created_at.strftime('%d %b %Y, %H:%M') }}</span><span class="mono">{{ a.confidence | pct(0) }}</span></div>
+        {% if a.note or a.eye_side %}<div class="row"><span>{{ a.note or '' }}</span><span>{{ a.eye_side | capitalize if a.eye_side }}</span></div>{% endif %}
+        <div class="conf"><span style="--w: {{ a.confidence * 100 }}%"></span></div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if page.pages > 1 %}
+  <nav class="pagination" aria-label="Pages">
+    {% if page.has_prev %}<a class="btn btn-ghost btn-sm" href="{{ url_for('analysis.dashboard', page=page.prev_num, condition=selected) }}">← Newer</a>{% endif %}
+    <span>Page {{ page.page }} of {{ page.pages }}</span>
+    {% if page.has_next %}<a class="btn btn-ghost btn-sm" href="{{ url_for('analysis.dashboard', page=page.next_num, condition=selected) }}">Older →</a>{% endif %}
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="empty-state" style="margin-top:32px">
+    {{ fundus('empty', scan=false, markers=false) }}
+    <h2 style="font-size:20px">No analyses yet</h2>
+    <p>Every image analysed while signed in shows up here with its heatmap and scores.</p>
+    <a class="btn btn-primary" href="{{ url_for('analysis.analyze') }}">Run the first analysis</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

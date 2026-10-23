@@ -1,0 +1,85 @@
+{# Illustrated retinal fundus. `uid` keeps gradient ids unique when used twice on a page. #}
+{% macro fundus(uid='f', scan=true, markers=true) -%}
+<svg class="fundus-art" viewBox="0 0 400 400" role="img" aria-label="Illustration of a retinal fundus photograph">
+  <defs>
+    <radialGradient id="{{ uid }}-bg" cx="46%" cy="50%" r="56%">
+      <stop offset="0%" stop-color="#F7AE68"/>
+      <stop offset="42%" stop-color="#E3692C"/>
+      <stop offset="78%" stop-color="#AC3A1B"/>
+      <stop offset="100%" stop-color="#5A180C"/>
+    </radialGradient>
+    <radialGradient id="{{ uid }}-disc" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFF7E2"/>
+      <stop offset="55%" stop-color="#FAD48C"/>
+      <stop offset="100%" stop-color="#F3A35A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="{{ uid }}-mac" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6E1E0C" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#6E1E0C" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="{{ uid }}-vig" cx="50%" cy="50%" r="50%">
+      <stop offset="72%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity=".55"/>
+    </radialGradient>
+    <linearGradient id="{{ uid }}-scan" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="85%" stop-color="#fff" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity=".9"/>
+    </linearGradient>
+    <clipPath id="{{ uid }}-clip"><circle cx="200" cy="200" r="190"/></clipPath>
+  </defs>
+
+  <circle cx="200" cy="200" r="198" fill="#0B0B0C"/>
+  <g clip-path="url(#{{ uid }}-clip)">
+    <circle cx="200" cy="200" r="190" fill="url(#{{ uid }}-bg)"/>
+    <circle cx="168" cy="206" r="58" fill="url(#{{ uid }}-mac)"/>
+
+    <g fill="none" stroke-linecap="round">
+      <g stroke="#7B1E0E" opacity=".9">
+        <path d="M272 182 C238 138 186 108 112 102 C84 100 58 112 34 136" stroke-width="5"/>
+        <path d="M272 198 C238 246 188 282 112 294 C84 298 58 286 34 262" stroke-width="5"/>
+        <path d="M206 118 C190 92 170 70 138 50" stroke-width="3.2"/>
+        <path d="M206 280 C190 306 170 328 138 348" stroke-width="3.2"/>
+        <path d="M280 178 C304 146 326 118 356 96" stroke-width="3.6"/>
+        <path d="M282 202 C306 236 328 262 358 288" stroke-width="3.6"/>
+        <path d="M150 104 C142 128 140 150 146 170" stroke-width="2"/>
+        <path d="M150 292 C142 268 140 248 146 230" stroke-width="2"/>
+      </g>
+      <g stroke="#B23A1C" opacity=".85">
+        <path d="M276 186 C246 150 196 124 128 118 C96 116 70 126 46 148" stroke-width="3"/>
+        <path d="M276 194 C246 232 198 266 128 280 C96 284 70 274 46 252" stroke-width="3"/>
+        <path d="M286 190 C318 188 350 182 390 172" stroke-width="2.6"/>
+        <path d="M234 136 C232 104 240 74 256 40" stroke-width="2"/>
+        <path d="M234 254 C232 286 240 318 256 356" stroke-width="2"/>
+        <path d="M112 118 C100 136 98 152 104 172" stroke-width="1.6"/>
+      </g>
+    </g>
+
+    <circle cx="276" cy="190" r="36" fill="url(#{{ uid }}-disc)"/>
+    <circle cx="279" cy="188" r="11" fill="#FFF9EC" opacity=".85"/>
+
+    {% if markers %}
+    <g class="fundus-lesions" fill="#FBE7A1">
+      <circle cx="196" cy="238" r="2.6"/><circle cx="204" cy="244" r="1.8"/>
+      <circle cx="188" cy="248" r="2.1"/><circle cx="212" cy="232" r="1.5"/>
+      <circle cx="132" cy="210" r="1.8"/><circle cx="140" cy="198" r="1.3"/>
+    </g>
+    {% endif %}
+
+    <circle cx="200" cy="200" r="190" fill="url(#{{ uid }}-vig)"/>
+
+    {% if scan %}
+    <g class="fundus-scan"><rect x="0" y="-120" width="400" height="120" fill="url(#{{ uid }}-scan)"/></g>
+    {% endif %}
+  </g>
+
+  {% if markers %}
+  <g class="fundus-markers" fill="none" stroke="#fff" stroke-width="1.5">
+    <circle class="pulse" cx="276" cy="190" r="46"/>
+    <circle class="pulse delay" cx="200" cy="240" r="24"/>
+    <path d="M318 150 L346 122 H384" stroke-opacity=".8"/>
+    <path d="M178 262 L150 292 H108" stroke-opacity=".8"/>
+  </g>
+  {% endif %}
+</svg>
+{%- endmacro %}

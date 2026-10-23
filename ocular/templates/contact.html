@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Contact{% endblock %}
+
+{% macro error(name) -%}
+  {% if errors[name] %}<span class="error-text">{{ errors[name] }}</span>{% endif %}
+{%- endmacro %}
+
+{% block content %}
+<div class="container">
+  <header class="page-head">
+    <span class="eyebrow">Contact</span>
+    <h1>Questions, ideas <em>or bugs</em></h1>
+    <p class="lede">Feedback from clinicians, researchers and engineers is especially welcome, whether it is about the model, the data or the interface.</p>
+  </header>
+
+  <div class="contact-grid">
+    <form class="card" method="post" action="{{ url_for('pages.contact') }}" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="two">
+        <div class="field{% if errors.name %} has-error{% endif %}">
+          <label for="name">Name</label>
+          <input class="input" type="text" id="name" name="name" value="{{ form.name }}" autocomplete="name" required>
+          {{ error('name') }}
+        </div>
+        <div class="field{% if errors.email %} has-error{% endif %}">
+          <label for="email">Email</label>
+          <input class="input" type="email" id="email" name="email" value="{{ form.email }}" autocomplete="email" required>
+          {{ error('email') }}
+        </div>
+      </div>
+      <div class="field">
+        <label for="topic">Topic</label>
+        <select class="select" id="topic" name="topic">
+          {% for value, label in topics.items() %}
+          <option value="{{ value }}" {% if form.topic == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field{% if errors.message %} has-error{% endif %}">
+        <label for="message">Message</label>
+        <textarea class="textarea" id="message" name="message" rows="6" required>{{ form.message }}</textarea>
+        {{ error('message') }}
+      </div>
+      <div class="submit-row">
+        <button type="submit" class="btn btn-primary btn-lg">Send message</button>
+        <span class="muted" style="font-size:14px">Messages are stored securely and never shared.</span>
+      </div>
+    </form>
+
+    <aside class="card">
+      <dl class="info-rows">
+        <div><dt>Project</dt><dd>Ocular disease recognition with deep learning, built as an end-to-end ML product: training notebook, inference service and web interface.</dd></div>
+        <div><dt>Author</dt><dd>Aya Aidi</dd></div>
+        <div><dt>Dataset</dt><dd><a href="https://www.kaggle.com/datasets/andrewmvd/ocular-disease-recognition-odir5k" target="_blank" rel="noopener">ODIR-5K on Kaggle</a></dd></div>
+        <div><dt>Response time</dt><dd>Usually within two working days.</dd></div>
+      </dl>
+    </aside>
+  </div>
+</div>
+{% endblock %}

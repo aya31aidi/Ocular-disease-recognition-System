@@ -1,0 +1,7 @@
+{% if predictor_status.mode == 'demo' %}
+<div class="demo-banner" role="note">
+  <strong>Demo mode</strong>
+  <span>{{ predictor_status.reason }} Scores below are synthetic, generated so the interface can be explored without the trained weights.</span>
+  <a href="{{ url_for('pages.model_card', _anchor='weights') }}">How to load the model →</a>
+</div>
+{% endif %}

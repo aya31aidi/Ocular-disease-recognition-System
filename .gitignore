@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+
+# runtime data: database, uploads, secret key
+instance/
+
+# dataset downloads
+odir5k/
+*.zip
+
+.DS_Store
+.vscode/
+.idea/

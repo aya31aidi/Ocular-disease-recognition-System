@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Model card{% endblock %}
+{% block description %}Architecture, dataset, training curves and known limitations of the VGG19 ocular disease classifier.{% endblock %}
+
+{% macro chart(data, fmt) -%}
+<svg viewBox="0 0 {{ data.width }} {{ data.height }}" role="img">
+  <g class="grid">
+    {% for t in data.y_ticks %}<line x1="{{ data.left }}" x2="{{ data.right }}" y1="{{ t.y }}" y2="{{ t.y }}"/>{% endfor %}
+  </g>
+  <g class="axis">
+    {% for t in data.y_ticks %}<text x="{{ data.left - 10 }}" y="{{ t.y + 4 }}" text-anchor="end">{{ t.label }}</text>{% endfor %}
+    {% for t in data.x_ticks %}<text x="{{ t.x }}" y="{{ data.bottom + 20 }}" text-anchor="middle">{{ t.label }}</text>{% endfor %}
+  </g>
+  {% for line in data.lines %}
+  <polyline class="series-{{ loop.index0 }}" points="{{ line.points }}"/>
+  {% set series = loop.index0 %}
+  {% for d in line.dots %}
+  <circle class="dot series-{{ series }}" cx="{{ d.x }}" cy="{{ d.y }}" r="4"><title>{{ line.name }}, epoch {{ d.epoch }}: {{ fmt.format(d.value) }}</title></circle>
+  {% endfor %}
+  {% endfor %}
+</svg>
+{%- endmacro %}
+
+{% block content %}
+<div class="container">
+  <header class="page-head">
+    <span class="eyebrow">Model card</span>
+    <h1>VGG19, fine-tuned for <em>the retina</em></h1>
+    <p class="lede">
+      Transfer learning on <a href="{{ card.dataset_url }}" rel="noopener" target="_blank">{{ card.dataset }}</a>:
+      ImageNet features from a frozen VGG19 backbone feed a small dense head trained to separate eight classes.
+      Every number on this page comes from the training notebook in the repository.
+    </p>
+  </header>
+
+  <dl class="stat-grid">
+    <div class="stat"><dt>Test accuracy</dt><dd>{{ card.test_accuracy | pct }}</dd><span class="sub">{{ card.split.test }} held-out images</span></div>
+    <div class="stat"><dt>Best validation accuracy</dt><dd>{{ card.best_val_accuracy | pct }}</dd><span class="sub">epoch 6 of {{ card.epochs }}</span></div>
+    <div class="stat"><dt>Parameters</dt><dd>{{ '%.1f' % (card.params_total / 1e6) }}M</dd><span class="sub">{{ '%.1f' % (card.params_trainable / 1e6) }}M trainable</span></div>
+    <div class="stat"><dt>Images</dt><dd>{{ "{:,}".format(card.images) }}</dd><span class="sub">{{ "{:,}".format(card.split.train) }} / {{ card.split.validation }} / {{ card.split.test }} split</span></div>
+  </dl>
+
+  <section class="section-tight">
+    <div class="section-head">
+      <span class="eyebrow">Architecture</span>
+      <h2 class="h-section">Frozen backbone, <em>trainable head</em></h2>
+    </div>
+    <div class="arch">
+      {% for layer in card.layers %}
+      <div class="arch-node{% if layer.frozen %} frozen backbone{% elif layer.frozen == false %} trainable{% endif %}">
+        <strong>{{ layer.name }}</strong>
+        {% if layer.detail %}<span class="muted">{{ layer.detail }}</span>{% endif %}
+        <span class="shape">{{ layer.shape }}</span>
+        <span class="params">{{ "{:,}".format(layer.params) }} params</span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="arch-legend">
+      <span><i class="f"></i>Frozen, ImageNet weights</span>
+      <span><i class="t"></i>Trained on ODIR-5K</span>
+      <span class="mono">{{ card.optimizer }}</span>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="two-col">
+      <div class="card chart">
+        <div class="card-title"><span>Accuracy per epoch</span></div>
+        <div class="chart-legend"><span><i class="s0"></i>Training</span><span><i class="s1"></i>Validation</span></div>
+        {{ chart(charts.accuracy, "{:.1%}") }}
+      </div>
+      <div class="card chart">
+        <div class="card-title"><span>Loss per epoch</span></div>
+        <div class="chart-legend"><span><i class="s0"></i>Training</span><span><i class="s1"></i>Validation</span></div>
+        {{ chart(charts.loss, "{:.3f}") }}
+      </div>
+    </div>
+    <p class="muted" style="margin-top:14px; font-size:14px">The gap that opens after epoch 4 is classic overfitting: the head memorises the training set while validation accuracy plateaus around 72–75%.</p>
+  </section>
+
+  <section class="section-tight">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title"><span>Images per class</span><span class="mono muted">{{ "{:,}".format(conditions | sum(attribute='training_images')) }} files</span></div>
+        {% set biggest = conditions | map(attribute='training_images') | max %}
+        <div class="hbar-list">
+          {% for c in conditions %}
+          <div class="hbar{% if c.training_images == biggest %} max{% endif %}">
+            <span>{{ c.short_name }}</span>
+            <span class="track"><span style="--w: {{ c.training_images / biggest * 100 }}%"></span></span>
+            <span class="num">{{ "{:,}".format(c.training_images) }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>Training setup</span></div>
+        <dl class="info-rows">
+          <div><dt>Input</dt><dd>{{ card.input }}</dd></div>
+          <div><dt>Labels</dt><dd>Built from the per-eye diagnostic keywords in <code class="inline">full_df.csv</code>; normal images were sampled down to 700.</dd></div>
+          <div><dt>Split</dt><dd>70% train, 15% validation, 15% test, shuffled with a fixed seed.</dd></div>
+          <div><dt>Optimisation</dt><dd>{{ card.optimizer }}, {{ card.epochs }} epochs on a Colab GPU (about 97 s per epoch).</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="section-head">
+      <span class="eyebrow">Known limitations</span>
+      <h2 class="h-section">Where it <em>falls short</em></h2>
+    </div>
+    <div class="limit-list">
+      {% for title, text in card.limitations %}
+      <div class="limit"><div><h3>{{ title }}</h3><p>{{ text }}</p></div></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section-tight" id="weights">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title"><span>Loading the trained weights</span>
+          <span class="badge {{ 'badge-routine' if predictor_status.mode == 'model' else 'badge-demo' }}">{{ 'Model loaded' if predictor_status.mode == 'model' else 'Demo mode' }}</span>
+        </div>
+        <div class="side-note">
+          <p>The weights file is about 160 MB, so it is tracked with Git LFS rather than as a regular file. Running the notebook (or <code class="inline">training/train.py</code>) produces <code class="inline">ocular_disease_model.h5</code>.</p>
+          <p>Placing it at <code class="inline">models/ocular_disease_model.h5</code>, or pointing <code class="inline">ODR_MODEL_PATH</code> at it, switches the app from demo mode to real predictions on the next start.</p>
+        </div>
+      </div>
+      <div class="card" id="api">
+        <div class="card-title"><span>REST API</span></div>
+        <div class="endpoint"><span class="method">GET</span>/api/v1/health</div>
+        <p class="side-note" style="margin-bottom:18px">Reports whether the model or the demo predictor is active, and lists the classes in output order.</p>
+        <div class="endpoint"><span class="method post">POST</span>/api/v1/predict<span class="muted">?heatmap=1</span></div>
+        <p class="side-note">Multipart upload under the field <code class="inline">file</code>. Returns the top class, all eight probabilities, input warnings and timing; with <code class="inline">heatmap=1</code> it also returns the Grad-CAM overlay as base64 JPEG.</p>
+      </div>
+    </div>
+  </section>
+  <div style="height:48px"></div>
+</div>
+{% endblock %}

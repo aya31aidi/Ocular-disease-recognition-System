@@ -1,0 +1,5 @@
+# Everything needed for real predictions and for training/train.py
+-r requirements.txt
+tensorflow>=2.15
+pandas>=2.0
+scikit-learn>=1.3
